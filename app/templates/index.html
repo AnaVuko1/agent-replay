@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Agent Replay{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1><i class="fas fa-dashboard"></i> Dashboard</h1>
+    <p class="subtitle">Monitor and analyze AI agent sessions in real-time</p>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalSessions">0</h3>
+                <p>Total Sessions</p>
+            </div>
+            <div class="stat-trend up">
+                <i class="fas fa-arrow-up"></i> 12%
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-step-forward"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalSteps">0</h3>
+                <p>Total Steps</p>
+            </div>
+            <div class="stat-trend up">
+                <i class="fas fa-arrow-up"></i> 8%
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-decide"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalDecisions">0</h3>
+                <p>Total Decisions</p>
+            </div>
+            <div class="stat-trend down">
+                <i class="fas fa-arrow-down"></i> 3%
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="activeReplays">0</h3>
+                <p>Active Replays</p>
+            </div>
+            <div class="stat-trend up">
+                <i class="fas fa-arrow-up"></i> 5%
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3><i class="fas fa-chart-line"></i> Session Activity</h3>
+                <select id="timeRange" class="select-sm">
+                    <option value="24">Last 24 hours</option>
+                    <option value="168">Last 7 days</option>
+                    <option value="720">Last 30 days</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3><i class="fas fa-pie-chart"></i> Step Type Distribution</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="stepTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sessions -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-clock"></i> Recent Sessions</h3>
+            <a href="/api/v1/sessions" class="btn btn-sm btn-outline">View All</a>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Agent</th>
+                        <th>Model</th>
+                        <th>Steps</th>
+                        <th>Decisions</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recentSessions">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Active Replays -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-play-circle"></i> Active Replays</h3>
+            <a href="/api/v1/replays" class="btn btn-sm btn-outline">View All</a>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Session</th>
+                        <th>Step Range</th>
+                        <th>Model</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="activeReplaysTable">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+        </div>
+        <div class="actions-grid">
+            <button class="action-btn" onclick="createNewSession()">
+                <i class="fas fa-plus-circle"></i>
+                <span>New Session</span>
+                <small>Start recording agent steps</small>
+            </button>
+            <button class="action-btn" onclick="viewTimeline()">
+                <i class="fas fa-timeline"></i>
+                <span>View Timeline</span>
+                <small>Interactive timeline viewer</small>
+            </button>
+            <button class="action-btn" onclick="startReplay()">
+                <i class="fas fa-play"></i>
+                <span>Start Replay</span>
+                <small>Replay agent decisions</small>
+            </button>
+            <button class="action-btn" onclick="compareSessions()">
+                <i class="fas fa-compare"></i>
+                <span>Compare</span>
+                <small>Compare sessions & replays</small>
+            </button>
+        </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-heartbeat"></i> System Health</h3>
+            <button class="btn btn-sm btn-outline" onclick="checkHealth()">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+        </div>
+        <div class="health-grid">
+            <div class="health-item healthy">
+                <div class="health-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="health-content">
+                    <h4>Database</h4>
+                    <p id="dbStatus">Checking...</p>
+                </div>
+            </div>
+            <div class="health-item healthy">
+                <div class="health-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <div class="health-content">
+                    <h4>API Server</h4>
+                    <p id="apiStatus">Checking...</p>
+                </div>
+            </div>
+            <div class="health-item healthy">
+                <div class="health-icon">
+                    <i class="fas fa-memory"></i>
+                </div>
+                <div class="health-content">
+                    <h4>Memory</h4>
+                    <p id="memoryUsage">Checking...</p>
+                </div>
+            </div>
+            <div class="health-item healthy">
+                <div class="health-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="health-content">
+                    <h4>Performance</h4>
+                    <p id="performance">Checking...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Session Modal -->
+<div id="createSessionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Create New Session</h3>
+            <button class="modal-close" onclick="closeModal('createSessionModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="createSessionForm">
+                <div class="form-group">
+                    <label for="sessionName">Session Name</label>
+                    <input type="text" id="sessionName" placeholder="e.g., Debugging Session" required>
+                </div>
+                <div class="form-group">
+                    <label for="agentId">Agent ID</label>
+                    <input type="text" id="agentId" placeholder="e.g., coding-agent-1" required>
+                </div>
+                <div class="form-group">
+                    <label for="model">Model</label>
+                    <select id="model" required>
+                        <option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="claude-3-opus">Claude 3 Opus</option>
+                        <option value="gemini-pro">Gemini Pro</option>
+                        <option value="custom">Custom Model</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="customModel" id="customModelLabel" style="display: none;">Custom Model Name</label>
+                    <input type="text" id="customModel" placeholder="e.g., my-llm-v1" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label for="metadata">Metadata (JSON)</label>
+                    <textarea id="metadata" rows="3" placeholder='{"task": "debugging", "environment": "dev"}'></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('createSessionModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitNewSession()">Create Session</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dashboard.js"></script>
+<script>
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+        setupCharts();
+        checkSystemHealth();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboardData, 30000);
+        setInterval(checkSystemHealth, 60000);
+    });
+    
+    // Handle model selection change
+    document.getElementById('model').addEventListener('change', function() {
+        const customModelLabel = document.getElementById('customModelLabel');
+        const customModelInput = document.getElementById('customModel');
+        
+        if (this.value === 'custom') {
+            customModelLabel.style.display = 'block';
+            customModelInput.style.display = 'block';
+            customModelInput.required = true;
+        } else {
+            customModelLabel.style.display = 'none';
+            customModelInput.style.display = 'none';
+            customModelInput.required = false;
+        }
+    });
+</script>
+{% endblock %}

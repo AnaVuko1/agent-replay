@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agent Replay{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-rewind"></i>
+                <span>Agent Replay</span>
+                <small class="nav-tagline">Record. Rewind. Replay.</small>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+                    <i class="fas fa-dashboard"></i> Dashboard
+                </a>
+                <a href="/api/v1/sessions" class="nav-link {% if 'sessions' in request.path %}active{% endif %}">
+                    <i class="fas fa-history"></i> Sessions
+                </a>
+                <a href="/api/v1/replays" class="nav-link {% if 'replays' in request.path %}active{% endif %}">
+                    <i class="fas fa-play-circle"></i> Replays
+                </a>
+                <a href="/api/v1/compare" class="nav-link {% if 'compare' in request.path %}active{% endif %}">
+                    <i class="fas fa-code-compare"></i> Compare
+                </a>
+                <a href="/docs" class="nav-link" target="_blank">
+                    <i class="fas fa-book"></i> API Docs
+                </a>
+            </div>
+            <div class="nav-actions">
+                <button class="btn btn-sm btn-outline" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i> Theme
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-rewind"></i> Agent Replay</h4>
+                <p>AI Agent Decision Playback Engine</p>
+                <p class="footer-version">v1.0.0</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/docs">API Documentation</a>
+                <a href="https://github.com/agentreplay/agent-replay" target="_blank">GitHub</a>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <a href="#">Documentation</a>
+                <a href="#">Examples</a>
+                <a href="#">Support</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Agent Replay. Open source AI agent observability tool.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
