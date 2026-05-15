@@ -52,7 +52,7 @@ Agent Replay Architecture:
 
 ```bash
 # Clone the repository
-git clone https://github.com/agentreplay/agent-replay.git
+git clone https://github.com/AnaVuko1/agent-replay.git
 cd agent-replay
 
 # Start with Docker Compose
@@ -65,7 +65,7 @@ docker-compose up -d
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/agentreplay/agent-replay.git
+git clone https://github.com/AnaVuko1/agent-replay.git
 cd agent-replay
 
 # 2. Create virtual environment
